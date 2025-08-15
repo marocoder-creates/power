@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # This is the crucial one for git push
+      pages: write      # Needed if you are deploying to GitHub Pages
 
     steps:
       - uses: actions/checkout@v4

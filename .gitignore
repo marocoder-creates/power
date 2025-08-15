@@ -1,3 +1,6 @@
+# Editor
+.idea/
+
 # Miscellaneous
 *.class
 *.lock

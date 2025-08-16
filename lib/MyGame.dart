@@ -4,14 +4,15 @@ import 'package:flame/game.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:power/Player.dart';
+import 'package:power/e_anim_state.dart';
+import 'package:power/enemy.dart';
 
 class MyGame extends FlameGame with KeyboardEvents {
   MyGame({required super.world});
 
   late Player player;
-  var deltaX = 0.0;
-  var deltaY = 0.0;
-  var speed = 1.0;
+  late Enemy enemy;
+
   @override
   KeyEventResult onKeyEvent(
     KeyEvent event,
@@ -33,29 +34,29 @@ class MyGame extends FlameGame with KeyboardEvents {
         keysPressed.contains(
           LogicalKeyboardKey("a".characters.first.codeUnitAt(0)),
         );
-    final oldDeltaXSign = deltaX.sign;
+
     if (isKeyDown) {
       if (isRight) {
-        deltaX = 1.0;
+        player.deltaX = 1.0;
+        player.state = EAnimState.walk;
       }
       if (isLeft) {
-        deltaX = -1.0;
+        player.deltaX = -1.0;
+        player.state = EAnimState.walk;
       }
       if (isSpeed) {
-        speed = 2.0;
+        player.speed = 2.0;
+        player.state = EAnimState.run;
       }
     }
 
     if (isKeyUp) {
-      deltaX = 0.0;
-      deltaY = 0.0;
-      speed = 1;
+      player.deltaX = 0.0;
+      player.deltaY = 0.0;
+      player.speed = 1;
+      player.state = EAnimState.idle;
     }
-    if (deltaX.sign < 0) {
-      player.transform.scale.x = -1.0 * player.transform.scale.x.abs();
-    } else {
-      player.transform.scale.x = player.transform.scale.x.abs();
-    }
+
     return KeyEventResult.handled;
   }
 
@@ -67,39 +68,27 @@ class MyGame extends FlameGame with KeyboardEvents {
     }
     player =
         world.children.firstWhere((element) => element is Player) as Player;
+    enemy = world.children.firstWhere((element) => element is Enemy) as Enemy;
 
-    if (player.walk.length < 10 ||
-        player.run.length < 10 ||
-        player.idle.length < 10 ||
-        player.attack.length < 10) {
+    if (player.isLoaded == false || enemy.isLoaded == false) {
       return;
     }
 
-    player.position.add(Vector2(deltaX, deltaY) * 256.0 * dt * speed);
-    player.anchor = Anchor.center;
-    player.time -= (1 / player.walk.length) * dt * 15;
-
-    if (player.time <= 0) {
-      player.frame = (player.frame + player.framedir) % player.walk.length;
-      player.time = 3.0 / player.walk.length;
-      // if (player.frame >= player.walk.length) {
-      //   player.frame -= 1;
-      //   player.framedir = -1;
-      // } else if (player.frame < 0) {
-      //   player.frame = 0;
-      //   player.framedir = 1;
-      // }
-      player.frame = (player.frame + player.framedir) % player.walk.length;
-      player.framedir = 1;
-    }
-    if (deltaX != 0) {
-      if (speed > 1) {
-        player.sprite = player.run[player.frame];
+    if ((player.position.x - enemy.position.x).abs() > 75) {
+      enemy.state = EAnimState.walk;
+      if (player.position.x > enemy.position.x) {
+        enemy.deltaX = 1.0;
       } else {
-        player.sprite = player.walk[player.frame];
+        enemy.deltaX = -1.0;
       }
     } else {
-      player.sprite = player.idle[player.frame];
+      enemy.state = EAnimState.attack;
+      enemy.deltaX = 0.0;
+      if (enemy.position.x < player.position.x) {
+        enemy.transform.scale.x = enemy.transform.scale.x.abs();
+      } else {
+        enemy.transform.scale.x = -1.0 * enemy.transform.scale.x.abs();
+      }
     }
   }
 }

@@ -1,8 +1,11 @@
+import 'dart:math';
+
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/widgets.dart';
 import 'package:power/MyGame.dart';
 import 'package:power/Player.dart';
+import 'package:power/enemy.dart';
 
 void main() {
   runApp(GameWidget(game: MyGame(world: MyWorld())));
@@ -20,5 +23,6 @@ class MyWorld extends World {
       ),
     );
     add(Player(position: Vector2(0, 0)));
+    add(Enemy(position: Vector2(0 - Random().nextInt(600).toDouble(), 20)));
   }
 }

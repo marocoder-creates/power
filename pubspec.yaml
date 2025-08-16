@@ -62,6 +62,10 @@ flutter:
   assets:
       - assets/images/
       - assets/images/player/
+      - assets/images/enemy/01-Idle/
+      - assets/images/enemy/02-Walk/
+      - assets/images/enemy/03-Attack/
+      - assets/images/enemy/07-Hurt/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

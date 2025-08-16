@@ -1,17 +1,18 @@
 import 'package:flame/components.dart';
+import 'package:power/entity.dart';
 
-class Player extends SpriteComponent {
+class Player extends Entity {
   Player({required Vector2 position})
     : super(position: position, size: Vector2.all(128));
 
-  List<Sprite> walk = [];
-  List<Sprite> run = [];
-  List<Sprite> idle = [];
-  List<Sprite> attack = [];
-
-  int frame = 0;
-  double time = 1.0;
-  int framedir = 1;
+  @override
+  bool get isLoaded {
+    var player = this;
+    return !(player.walk.length < 10 ||
+        player.run.length < 10 ||
+        player.idle.length < 10 ||
+        player.attack.length < 10);
+  }
 
   @override
   Future<void> onLoad() async {
@@ -22,5 +23,10 @@ class Player extends SpriteComponent {
       idle.add(await Sprite.load('player/Idle ($i).png'));
       attack.add(await Sprite.load('player/Attack ($i).png'));
     }
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
   }
 }

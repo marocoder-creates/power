@@ -18,7 +18,7 @@ class Enemy extends Entity {
 
   @override
   Future<void> onLoad() async {
-    sprite = await Sprite.load('enemy/01-Idle/__Bandit02_Idle_000.png');
+    //sprite = await Sprite.load('enemy/01-Idle/__Bandit02_Idle_000.png');
     for (var i = 0; i < 12; ++i) {
       idle.add(
         await Sprite.load(
@@ -38,5 +38,6 @@ class Enemy extends Entity {
         ),
       );
     }
+    sprite = spriteList[0];
   }
 }

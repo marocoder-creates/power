@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flame/input.dart';
 import 'package:flame/game.dart';
@@ -12,6 +14,12 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
 
   late Player player;
   late Enemy enemy;
+  var playerHealth = 1000;
+  var enemyHealth = 500;
+  var lastEnemyAttackTime = 0.0;
+  var targetHealthbarScale = 1.0;
+  var lastPlayerAttackTime = 0.0;
+  var knockBack = 0.0;
 
   @override
   KeyEventResult onKeyEvent(
@@ -23,6 +31,11 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
     final isSpeed =
         keysPressed.contains(LogicalKeyboardKey.shiftLeft) ||
         keysPressed.contains(LogicalKeyboardKey.shiftRight);
+
+    final isAttack =
+        keysPressed.contains(LogicalKeyboardKey.space) ||
+        keysPressed.contains(LogicalKeyboardKey.controlLeft) ||
+        keysPressed.contains(LogicalKeyboardKey.controlRight);
 
     final isRight =
         keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
@@ -56,6 +69,9 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
       player.speed = 1;
       player.state = EAnimState.idle;
     }
+    if (isAttack) {
+      player.state = EAnimState.attack;
+    }
 
     return KeyEventResult.handled;
   }
@@ -63,7 +79,7 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   @override
   void update(double dt) {
     super.update(dt);
-    if (world.children.isEmpty || world.children.length < 4) {
+    if (world.children.isEmpty || world.children.length < 5) {
       return;
     }
     player =
@@ -73,6 +89,13 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
     if (player.isLoaded == false || enemy.isLoaded == false) {
       return;
     }
+
+    final healthBar =
+        world.children.firstWhere((element) => element is PolygonComponent)
+            as PolygonComponent;
+
+    healthBar.transform.position.x = player.position.x - 45;
+    healthBar.transform.position.y = player.position.y - 90;
 
     if ((player.position.x - enemy.position.x).abs() > 75) {
       enemy.state = EAnimState.walk;
@@ -84,10 +107,56 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
     } else {
       enemy.state = EAnimState.attack;
       enemy.deltaX = 0.0;
+
+      lastEnemyAttackTime -= dt;
+      if (lastEnemyAttackTime <= 0) {
+        lastEnemyAttackTime = 0.7;
+        playerHealth = max(0, playerHealth - 100 - Random().nextInt(250));
+        targetHealthbarScale = (playerHealth / 1000).abs();
+        if (playerHealth <= 0) {
+          playerHealth = 1000;
+          targetHealthbarScale = 1.0;
+          player.position.x = enemy.position.x - 400 + Random().nextInt(800);
+          healthBar.transform.scale.x = 1.0;
+          player.state = EAnimState.idle;
+        }
+      }
+
+      lastPlayerAttackTime -= dt;
+      if (player.state == EAnimState.attack && lastPlayerAttackTime <= 0) {
+        lastPlayerAttackTime = 0.3;
+        enemyHealth = max(0, enemyHealth - 300 - Random().nextInt(500));
+        //targetEnemyHealthbarScale = (enemyHealth / 1000).abs();
+        if (enemyHealth <= 0) {
+          enemyHealth = 1000;
+          //targetEnemyHealthbarScale = 1.0;
+          enemy.position.x = player.position.x - 400 + Random().nextInt(800);
+          knockBack = 0;
+        } else {
+          if (enemy.position.x > player.position.x) {
+            knockBack = 10;
+          } else {
+            knockBack = -10;
+          }
+        }
+      }
+
+      healthBar.transform.scale.x +=
+          (targetHealthbarScale - healthBar.transform.scale.x) * 0.05;
+
       if (enemy.position.x < player.position.x) {
         enemy.transform.scale.x = enemy.transform.scale.x.abs();
       } else {
         enemy.transform.scale.x = -1.0 * enemy.transform.scale.x.abs();
+      }
+    }
+    enemy.position.x += knockBack;
+    knockBack *= 0.95;
+    if (player.state == EAnimState.attack || player.state == EAnimState.idle) {
+      if (enemy.position.x > player.position.x) {
+        player.transform.scale.x = player.transform.scale.x.abs();
+      } else {
+        player.transform.scale.x = -1.0 * player.transform.scale.x.abs();
       }
     }
   }

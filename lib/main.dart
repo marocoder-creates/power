@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flame/game.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:power/MyGame.dart';
 import 'package:power/Player.dart';
@@ -14,8 +15,14 @@ void main() {
 class MyWorld extends World {
   static int totalToLoad = 1;
   static int totalLoaded = 1;
+  ShapeComponent hpBarShape = PolygonComponent(
+    [Vector2(0, 10), Vector2(100, 10), Vector2(100, 0), Vector2(0, 0)],
 
-  @override
+    anchor: Anchor.topLeft,
+    position: Vector2.zero(),
+    paint: Paint()..color = Colors.red,
+  );
+
   @override
   void update(double dt) {
     super.update(dt);
@@ -24,16 +31,14 @@ class MyWorld extends World {
       return;
     }
     final tc =
-        this.children.firstWhere((element) => element is TextComponent)
+        children.firstWhere((element) => element is TextComponent)
             as TextComponent;
 
-    if (tc != null) {
-      if (progress >= 1) {
-        tc.text = "";
-        return;
-      }
-      tc.text = "loading ${(progress * 100).toStringAsFixed(2)}%";
+    if (progress >= 1) {
+      tc.text = "";
+      return;
     }
+    tc.text = "loading ${(progress * 100).toStringAsFixed(2)}%";
   }
 
   @override
@@ -55,5 +60,6 @@ class MyWorld extends World {
     );
     add(Player(position: Vector2(0, 0)));
     add(Enemy(position: Vector2(0 - Random().nextInt(600).toDouble(), 20)));
+    add(hpBarShape);
   }
 }

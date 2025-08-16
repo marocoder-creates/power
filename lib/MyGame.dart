@@ -7,7 +7,7 @@ import 'package:power/Player.dart';
 import 'package:power/e_anim_state.dart';
 import 'package:power/enemy.dart';
 
-class MyGame extends FlameGame with KeyboardEvents {
+class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   MyGame({required super.world});
 
   late Player player;
@@ -63,7 +63,7 @@ class MyGame extends FlameGame with KeyboardEvents {
   @override
   void update(double dt) {
     super.update(dt);
-    if (world.children.isEmpty || world.children.length < 2) {
+    if (world.children.isEmpty || world.children.length < 4) {
       return;
     }
     player =

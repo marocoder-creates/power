@@ -20,23 +20,11 @@ class Enemy extends Entity {
   Future<void> onLoad() async {
     //sprite = await Sprite.load('enemy/01-Idle/__Bandit02_Idle_000.png');
     for (var i = 0; i < 12; ++i) {
-      idle.add(
-        await Sprite.load(
-          'enemy/01-Idle/__Bandit02_Idle_${i.toString().padLeft(3, '0')}.png',
-        ),
-      );
+      idle.add(await Sprite.load('enemy/01-Idle/$i.png'));
     }
     for (var i = 0; i < 8; ++i) {
-      walk.add(
-        await Sprite.load(
-          'enemy/02-Walk/__Bandit02_Walk_${i.toString().padLeft(3, '0')}.png',
-        ),
-      );
-      attack.add(
-        await Sprite.load(
-          'enemy/03-Attack/__Bandit02_Attack_${i.toString().padLeft(3, '0')}.png',
-        ),
-      );
+      walk.add(await Sprite.load('enemy/02-Walk/$i.png'));
+      attack.add(await Sprite.load('enemy/03-Attack/$i.png'));
     }
     sprite = spriteList[0];
   }

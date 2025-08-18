@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:power/MyGame.dart';
 import 'package:power/Player.dart';
 import 'package:power/enemy.dart';
+import 'package:power/resource_bar.dart';
 
 void main() {
   runApp(GameWidget(game: MyGame(world: MyWorld())));
@@ -15,13 +16,6 @@ void main() {
 class MyWorld extends World {
   static int totalToLoad = 1;
   static int totalLoaded = 1;
-  ShapeComponent hpBarShape = PolygonComponent(
-    [Vector2(0, 10), Vector2(100, 10), Vector2(100, 0), Vector2(0, 0)],
-
-    anchor: Anchor.topLeft,
-    position: Vector2.zero(),
-    paint: Paint()..color = Colors.red,
-  );
 
   @override
   void update(double dt) {
@@ -60,6 +54,5 @@ class MyWorld extends World {
     );
     add(Player(position: Vector2(0, 0)));
     add(Enemy(position: Vector2(0 - Random().nextInt(600).toDouble(), 20)));
-    add(hpBarShape);
   }
 }

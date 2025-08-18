@@ -1,10 +1,16 @@
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 import 'package:power/entity.dart';
 import 'package:power/main.dart';
 
 class Enemy extends Entity {
   Enemy({required Vector2 position})
-    : super(position: position, size: Vector2.all(128));
+    : super(
+        position: position,
+        size: Vector2.all(128),
+        hpBarColor: Colors.green,
+        maxHp: 800,
+      );
 
   @override
   double speed = 0.7;

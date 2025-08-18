@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:power/Player.dart';
 import 'package:power/e_anim_state.dart';
 import 'package:power/enemy.dart';
+import 'package:power/resource_bar.dart';
 
 class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   MyGame({required super.world});
@@ -15,7 +16,7 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   late Player player;
   late Enemy enemy;
   var playerHealth = 1000;
-  var enemyHealth = 500;
+  var enemyHealth = 800;
   var lastEnemyAttackTime = 0.0;
   var targetHealthbarScale = 1.0;
   var lastPlayerAttackTime = 0.0;
@@ -79,7 +80,7 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   @override
   void update(double dt) {
     super.update(dt);
-    if (world.children.isEmpty || world.children.length < 5) {
+    if (world.children.isEmpty || world.children.length < 4) {
       return;
     }
     player =
@@ -90,12 +91,8 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
       return;
     }
 
-    final healthBar =
-        world.children.firstWhere((element) => element is PolygonComponent)
-            as PolygonComponent;
-
-    healthBar.transform.position.x = player.position.x - 45;
-    healthBar.transform.position.y = player.position.y - 90;
+    player.hpBarShape.tweenTo(targetHealthbarScale);
+    enemy.hpBarShape.tweenTo(enemyHealth / 800);
 
     if ((player.position.x - enemy.position.x).abs() > 75) {
       enemy.state = EAnimState.walk;
@@ -117,7 +114,8 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
           playerHealth = 1000;
           targetHealthbarScale = 1.0;
           player.position.x = enemy.position.x - 400 + Random().nextInt(800);
-          healthBar.transform.scale.x = 1.0;
+          //healthBar.transform.scale.x = 1.0;
+          targetHealthbarScale = 1;
           player.state = EAnimState.idle;
         }
       }
@@ -140,9 +138,6 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
           }
         }
       }
-
-      healthBar.transform.scale.x +=
-          (targetHealthbarScale - healthBar.transform.scale.x) * 0.05;
 
       if (enemy.position.x < player.position.x) {
         enemy.transform.scale.x = enemy.transform.scale.x.abs();

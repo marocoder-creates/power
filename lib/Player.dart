@@ -1,10 +1,11 @@
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 import 'package:power/entity.dart';
 import 'package:power/main.dart';
 
 class Player extends Entity {
-  Player({required Vector2 position})
-    : super(position: position, size: Vector2.all(128));
+  Player({required super.position})
+    : super(size: Vector2.all(128), hpBarColor: Colors.red, maxHp: 1000);
 
   @override
   bool get isLoaded {

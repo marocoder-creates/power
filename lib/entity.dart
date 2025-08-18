@@ -1,10 +1,27 @@
+import 'dart:async';
+import 'dart:math';
+
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:power/e_anim_state.dart';
+import 'package:power/resource_bar.dart';
 
 class Entity extends SpriteComponent {
-  Entity({required Vector2 position, required Vector2 size})
-    : super(position: position, size: Vector2.all(128));
+  Entity({
+    required Vector2 position,
+    required Vector2 size,
+    required this.hpBarColor,
+    required this.maxHp,
+  }) : super(position: position, size: Vector2.all(128)) {
+    add(
+      hpBarShape = ResourceBar(
+        anchor: Anchor.topLeft,
+        position: Vector2.zero(),
+        paint: Paint()..color = (hpBarColor..withValues(alpha: 0.7)),
+        mainColor: hpBarColor..withValues(alpha: 0.7),
+      ),
+    );
+  }
 
   @override
   bool get isLoaded {
@@ -15,6 +32,12 @@ class Entity extends SpriteComponent {
   List<Sprite> run = [];
   List<Sprite> idle = [];
   List<Sprite> attack = [];
+
+  late final ResourceBar hpBarShape;
+  Color hpBarColor;
+
+  double maxHp = 1000;
+  late double hp = 1000;
 
   var deltaX = 0.0;
   var deltaY = 0.0;
@@ -37,6 +60,13 @@ class Entity extends SpriteComponent {
       case EAnimState.run:
         return run;
     }
+  }
+
+  @override
+  FutureOr<void> onLoad() {
+    hp = maxHp;
+
+    return super.onLoad();
   }
 
   @override
@@ -82,6 +112,10 @@ class Entity extends SpriteComponent {
       }
     } else {
       entity.sprite = entity.spriteList[entity.frame];
+    }
+    if (isLoaded) {
+      hpBarShape.transform.position.x = 0;
+      hpBarShape.transform.position.y = -12;
     }
   }
 }

@@ -1,1 +1,1 @@
-enum EAnimState { idle, walk, attack, run }
+enum EAnimState { idle, walk, attack, run, hurt }

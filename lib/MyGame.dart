@@ -4,10 +4,13 @@ import 'package:flame/components.dart';
 import 'package:flame/input.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:power/Player.dart';
+import 'package:power/blood_particle.dart';
 import 'package:power/e_anim_state.dart';
 import 'package:power/enemy.dart';
+import 'package:power/entity.dart';
 import 'package:power/resource_bar.dart';
 
 class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
@@ -21,6 +24,7 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   var targetHealthbarScale = 1.0;
   var lastPlayerAttackTime = 0.0;
   var knockBack = 0.0;
+  var playerKnockBack = 0.0;
 
   @override
   KeyEventResult onKeyEvent(
@@ -91,9 +95,6 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
       return;
     }
 
-    player.hpBarShape.tweenTo(targetHealthbarScale);
-    enemy.hpBarShape.tweenTo(enemyHealth / 800);
-
     if ((player.position.x - enemy.position.x).abs() > 75) {
       enemy.state = EAnimState.walk;
       if (player.position.x > enemy.position.x) {
@@ -102,40 +103,34 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
         enemy.deltaX = -1.0;
       }
     } else {
-      enemy.state = EAnimState.attack;
-      enemy.deltaX = 0.0;
+      if (player.blinkTime > 0) {
+        enemy.state = EAnimState.idle;
+      } else {
+        enemy.state = EAnimState.attack;
+        enemy.deltaX = 0.0;
 
-      lastEnemyAttackTime -= dt;
-      if (lastEnemyAttackTime <= 0) {
-        lastEnemyAttackTime = 0.7;
-        playerHealth = max(0, playerHealth - 100 - Random().nextInt(250));
-        targetHealthbarScale = (playerHealth / 1000).abs();
-        if (playerHealth <= 0) {
-          playerHealth = 1000;
-          targetHealthbarScale = 1.0;
-          player.position.x = enemy.position.x - 400 + Random().nextInt(800);
-          //healthBar.transform.scale.x = 1.0;
-          targetHealthbarScale = 1;
-          player.state = EAnimState.idle;
+        lastEnemyAttackTime -= dt;
+        if (lastEnemyAttackTime <= 0) {
+          lastEnemyAttackTime = 0.7;
+          player.takeDamage(200.0 + Random().nextInt(600));
+          spawnParticles(player);
         }
-      }
 
-      lastPlayerAttackTime -= dt;
-      if (player.state == EAnimState.attack && lastPlayerAttackTime <= 0) {
-        lastPlayerAttackTime = 0.3;
-        enemyHealth = max(0, enemyHealth - 300 - Random().nextInt(500));
-        //targetEnemyHealthbarScale = (enemyHealth / 1000).abs();
-        if (enemyHealth <= 0) {
-          enemyHealth = 1000;
-          //targetEnemyHealthbarScale = 1.0;
-          enemy.position.x = player.position.x - 400 + Random().nextInt(800);
-          knockBack = 0;
-        } else {
-          if (enemy.position.x > player.position.x) {
-            knockBack = 10;
+        lastPlayerAttackTime -= dt;
+        if (player.state == EAnimState.attack && lastPlayerAttackTime <= 0) {
+          lastPlayerAttackTime = 0.3;
+          enemy.takeDamage(300.0 + Random().nextInt(500));
+          enemy.state = EAnimState.hurt;
+
+          if (enemyHealth <= 0) {
           } else {
-            knockBack = -10;
+            if (enemy.position.x > player.position.x) {
+              knockBack = 10;
+            } else {
+              knockBack = -10;
+            }
           }
+          spawnParticles(enemy);
         }
       }
 
@@ -147,12 +142,25 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
     }
     enemy.position.x += knockBack;
     knockBack *= 0.95;
+    if (knockBack.abs() > 8) {
+      spawnParticles(enemy);
+    }
     if (player.state == EAnimState.attack || player.state == EAnimState.idle) {
       if (enemy.position.x > player.position.x) {
         player.transform.scale.x = player.transform.scale.x.abs();
       } else {
         player.transform.scale.x = -1.0 * player.transform.scale.x.abs();
       }
+    }
+  }
+
+  void spawnParticles(Entity entity) {
+    for (var i = 0; i < 20; ++i) {
+      final particle = BloodParticle(
+        mainColor: entity.hpBarColor,
+        position: Vector2(entity.position.x, entity.position.y),
+      );
+      world.add(particle);
     }
   }
 }

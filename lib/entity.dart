@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flame/components.dart';
+import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:power/e_anim_state.dart';
 import 'package:power/resource_bar.dart';
@@ -32,6 +33,7 @@ class Entity extends SpriteComponent {
   List<Sprite> run = [];
   List<Sprite> idle = [];
   List<Sprite> attack = [];
+  List<Sprite> hurt = [];
 
   late final ResourceBar hpBarShape;
   Color hpBarColor;
@@ -47,7 +49,21 @@ class Entity extends SpriteComponent {
   int frame = 0;
   double time = 1.0;
   int framedir = 1;
-  EAnimState state = EAnimState.idle;
+  EAnimState _state = EAnimState.idle;
+  double blinkTime = 0;
+
+  set state(EAnimState value) {
+    if (_state == EAnimState.hurt && value != EAnimState.hurt) {
+      return;
+    }
+
+    _state = value;
+    if (_state == EAnimState.hurt) {
+      frame = 0;
+    }
+  }
+
+  EAnimState get state => _state;
 
   List<Sprite> get spriteList {
     switch (state) {
@@ -59,6 +75,8 @@ class Entity extends SpriteComponent {
         return attack;
       case EAnimState.run:
         return run;
+      case EAnimState.hurt:
+        return hurt;
     }
   }
 
@@ -69,9 +87,33 @@ class Entity extends SpriteComponent {
     return super.onLoad();
   }
 
+  void takeDamage(double damage) {
+    hp -= damage;
+    if (hp <= 0) {
+      hp = maxHp;
+      state = EAnimState.idle;
+    } else {
+      blinkTime = 2;
+    }
+  }
+
   @override
   void update(double dt) {
     super.update(dt);
+    hpBarShape.tweenTo(hp / maxHp);
+
+    blinkTime -= dt;
+    if (blinkTime <= 0) {
+      blinkTime = 0;
+      opacity = 1;
+    } else {
+      if ((blinkTime * 10).toInt() % 4 == 0) {
+        opacity = 0.8;
+      } else {
+        opacity = 1;
+      }
+    }
+
     final entity = this;
 
     if (entity.deltaX.sign < 0) {
@@ -83,16 +125,16 @@ class Entity extends SpriteComponent {
     entity.time -= (1 / entity.spriteList.length) * dt * 45;
 
     if (entity.time <= 0) {
+      if (entity.frame + entity.framedir < 0 ||
+          entity.frame + entity.framedir >= entity.spriteList.length) {
+        if (_state == EAnimState.hurt) {
+          _state = EAnimState.idle;
+          entity.frame = 0;
+        }
+      }
       entity.frame =
           (entity.frame + entity.framedir) % entity.spriteList.length;
       entity.time = 3.0 / entity.spriteList.length;
-      // if (player.frame >= player.walk.length) {
-      //   player.frame -= 1;
-      //   player.framedir = -1;
-      // } else if (player.frame < 0) {
-      //   player.frame = 0;
-      //   player.framedir = 1;
-      // }
       entity.framedir = 1;
     }
 

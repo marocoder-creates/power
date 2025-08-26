@@ -4,13 +4,8 @@ import 'package:power/entity.dart';
 import 'package:power/main.dart';
 
 class Enemy extends Entity {
-  Enemy({required Vector2 position})
-    : super(
-        position: position,
-        size: Vector2.all(128),
-        hpBarColor: Colors.green,
-        maxHp: 800,
-      );
+  Enemy({required super.position})
+    : super(size: Vector2.all(128), hpBarColor: Colors.green, maxHp: 800);
 
   @override
   double speed = 0.7;

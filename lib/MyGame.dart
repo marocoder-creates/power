@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:flame/components.dart';
 import 'package:flame/input.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +10,6 @@ import 'package:power/blood_particle.dart';
 import 'package:power/e_anim_state.dart';
 import 'package:power/enemy.dart';
 import 'package:power/entity.dart';
-import 'package:power/resource_bar.dart';
 
 class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   MyGame({required super.world});

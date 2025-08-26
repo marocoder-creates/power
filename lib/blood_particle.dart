@@ -3,9 +3,7 @@ import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/components.dart';
-import 'package:flame/flame.dart';
 import 'package:flutter/material.dart';
-import 'package:power/MyGame.dart';
 
 class BloodParticle extends PositionComponent {
   BloodParticle({

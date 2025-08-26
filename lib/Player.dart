@@ -31,9 +31,4 @@ class Player extends Entity {
       MyWorld.totalLoaded += 1;
     }
   }
-
-  @override
-  void update(double dt) {
-    super.update(dt);
-  }
 }

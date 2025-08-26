@@ -7,7 +7,6 @@ import 'package:flutter/widgets.dart';
 import 'package:power/MyGame.dart';
 import 'package:power/Player.dart';
 import 'package:power/enemy.dart';
-import 'package:power/resource_bar.dart';
 
 void main() {
   runApp(GameWidget(game: MyGame(world: MyWorld())));

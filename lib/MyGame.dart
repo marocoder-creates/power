@@ -1,7 +1,11 @@
 import 'dart:math';
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 
 import 'package:flame/input.dart';
 import 'package:flame/game.dart';
+import 'package:flame/sprite.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,6 +14,7 @@ import 'package:power/blood_particle.dart';
 import 'package:power/e_anim_state.dart';
 import 'package:power/enemy.dart';
 import 'package:power/entity.dart';
+import 'package:power/mcsprite_atlas.dart';
 
 class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   MyGame({required super.world});
@@ -23,6 +28,26 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
   var lastPlayerAttackTime = 0.0;
   var knockBack = 0.0;
   var playerKnockBack = 0.0;
+  late final MCSpriteAtlas atlas;
+  late final SpriteSheet spriteSheet;
+  var isLoaded = false;
+
+  @override
+  Future<void> onLoad() async {
+    final atlasJson = await rootBundle.loadString(
+      'assets/images/output/game_assets.json',
+    );
+    atlas = MCSpriteAtlas.fromJsonString(atlasJson);
+    spriteSheet = SpriteSheet(
+      image: await images.load('output/${atlas.meta.image}'),
+      srcSize: Vector2(
+        atlas.meta.cellWidth.toDouble() + 4,
+        atlas.meta.cellHeight.toDouble() + 4,
+      ),
+    );
+    isLoaded = true;
+    await super.onLoad();
+  }
 
   @override
   KeyEventResult onKeyEvent(
@@ -160,5 +185,20 @@ class MyGame extends FlameGame with KeyboardEvents, SingleGameInstance {
       );
       world.add(particle);
     }
+  }
+
+  Sprite? getSprite(String spriteName) {
+    spriteName = "images/entities/$spriteName";
+    final pathBytes = utf8.encode(spriteName);
+    final digest = md5.convert(pathBytes).toString();
+
+    final frame = atlas.frames.firstWhere(
+      (element) => element.md5 == digest,
+      orElse: () => atlas.frames.first,
+    );
+    int row = frame.row;
+    int column = frame.col;
+
+    return spriteSheet.getSprite(row, column);
   }
 }

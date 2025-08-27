@@ -5,7 +5,7 @@ import 'package:power/main.dart';
 
 class Enemy extends Entity {
   Enemy({required super.position})
-    : super(size: Vector2.all(128), hpBarColor: Colors.green, maxHp: 800);
+    : super(size: Vector2.all(128), hpBarColor: Colors.red, maxHp: 800);
 
   @override
   double speed = 0.7;
@@ -24,17 +24,18 @@ class Enemy extends Entity {
     //sprite = await Sprite.load('enemy/01-Idle/__Bandit02_Idle_000.png');
     MyWorld.totalToLoad += 3 * 8 + 12;
     for (var i = 0; i < 12; ++i) {
-      idle.add(await Sprite.load('enemy/01-Idle/$i.png'));
+      idle.add(('enemy/01-Idle/$i.png'));
       MyWorld.totalLoaded += 1;
     }
     for (var i = 0; i < 8; ++i) {
-      walk.add(await Sprite.load('enemy/02-Walk/$i.png'));
+      walk.add(('enemy/02-Walk/$i.png'));
       MyWorld.totalLoaded += 1;
-      attack.add(await Sprite.load('enemy/03-Attack/$i.png'));
+      attack.add(('enemy/03-Attack/$i.png'));
       MyWorld.totalLoaded += 1;
-      hurt.add(await Sprite.load('enemy/07-Hurt/$i.png'));
+      hurt.add(('enemy/07-Hurt/$i.png'));
       MyWorld.totalLoaded += 1;
     }
-    sprite = spriteList[0];
+    sprite = game.getSprite(idle[0]);
+    super.onLoad();
   }
 }

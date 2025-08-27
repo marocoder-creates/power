@@ -5,7 +5,7 @@ import 'package:power/main.dart';
 
 class Player extends Entity {
   Player({required super.position})
-    : super(size: Vector2.all(128), hpBarColor: Colors.red, maxHp: 1000);
+    : super(size: Vector2.all(128), hpBarColor: Colors.green, maxHp: 1000);
 
   @override
   bool get isLoaded {
@@ -19,16 +19,18 @@ class Player extends Entity {
   @override
   Future<void> onLoad() async {
     MyWorld.totalToLoad += 4 * 10;
-    sprite = await Sprite.load('player_idle_0.png');
+    sprite = null;
     for (var i = 1; i <= 10; ++i) {
-      walk.add(await Sprite.load('player/Walk ($i).png'));
+      walk.add(('player/Walk ($i).png'));
       MyWorld.totalLoaded += 1;
-      run.add(await Sprite.load('player/Run ($i).png'));
+      run.add(('player/Run ($i).png'));
       MyWorld.totalLoaded += 1;
-      idle.add(await Sprite.load('player/Idle ($i).png'));
+      idle.add(('player/Idle ($i).png'));
       MyWorld.totalLoaded += 1;
-      attack.add(await Sprite.load('player/Attack ($i).png'));
+      attack.add(('player/Attack ($i).png'));
       MyWorld.totalLoaded += 1;
     }
+    sprite = game.getSprite(idle[0]);
+    super.onLoad();
   }
 }

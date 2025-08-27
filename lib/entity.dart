@@ -2,16 +2,18 @@ import 'dart:async';
 
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
+import 'package:power/MyGame.dart';
 import 'package:power/e_anim_state.dart';
 import 'package:power/resource_bar.dart';
 
-class Entity extends SpriteComponent {
+class Entity extends SpriteComponent with HasGameReference<MyGame> {
   Entity({
     required Vector2 position,
     required Vector2 size,
     required this.hpBarColor,
     required this.maxHp,
   }) : super(position: position, size: Vector2.all(128)) {
+    anchor = Anchor.center;
     add(
       hpBarShape = ResourceBar(
         anchor: Anchor.topLeft,
@@ -27,11 +29,11 @@ class Entity extends SpriteComponent {
     return false;
   }
 
-  List<Sprite> walk = [];
-  List<Sprite> run = [];
-  List<Sprite> idle = [];
-  List<Sprite> attack = [];
-  List<Sprite> hurt = [];
+  List<String> walk = [];
+  List<String> run = [];
+  List<String> idle = [];
+  List<String> attack = [];
+  List<String> hurt = [];
 
   late final ResourceBar hpBarShape;
   Color hpBarColor;
@@ -63,7 +65,7 @@ class Entity extends SpriteComponent {
 
   EAnimState get state => _state;
 
-  List<Sprite> get spriteList {
+  List<String> get spriteList {
     switch (state) {
       case EAnimState.idle:
         return idle;
@@ -146,12 +148,12 @@ class Entity extends SpriteComponent {
     }
     if (deltaX != 0) {
       if (speed > 1) {
-        entity.sprite = entity.spriteList[entity.frame];
+        entity.sprite = game.getSprite(entity.spriteList[entity.frame]);
       } else {
-        entity.sprite = entity.spriteList[entity.frame];
+        entity.sprite = game.getSprite(entity.spriteList[entity.frame]);
       }
     } else {
-      entity.sprite = entity.spriteList[entity.frame];
+      entity.sprite = game.getSprite(entity.spriteList[entity.frame]);
     }
     if (isLoaded) {
       hpBarShape.transform.position.x = 0;
